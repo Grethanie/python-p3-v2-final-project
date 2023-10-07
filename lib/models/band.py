@@ -11,3 +11,7 @@ class Band:
         self._albums = albums
     def set_genre(self, genre):
         self._genre = genre
+        
+    name = property(get_name, set_name)
+    albums = property(get_albums, set_albums)
+    genre = property(get_genre, set_genre)
