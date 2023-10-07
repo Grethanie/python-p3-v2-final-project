@@ -1,6 +1,11 @@
 class Song:
+    
+    all = []
+    
     def __init__(self, title, album, band):
         self.title, self.album, self.band = title, album, band
+        Song.all.append(self)
+        self.band.songs.append(self)
         
     def get_title(self): return self._title
     def get_album(self): return self._album
