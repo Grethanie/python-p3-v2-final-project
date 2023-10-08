@@ -7,6 +7,7 @@ class Band:
     def __init__(self, name, genre, id=None):
         self.name, self.genre, self.id = name, genre, id
         
+    @classmethod
     def create_table(cls):
         """Create the table for the Band model"""
         sql = """CREATE TABLE IF NOT EXISTS bands (
@@ -17,12 +18,14 @@ class Band:
         CURSOR.execute(sql)
         CONN.commit()
         
+    @classmethod
     def drop_table(cls):
         """Drop the table for the Band model"""
         sql = """DROP TABLE IF EXISTS bands"""
         CURSOR.execute(sql)
         CONN.commit()
         
+    
     def save(self):
         """Save the band to the database"""
         sql = """INSERT INTO bands (name, genre) VALUES (?, ?)"""
@@ -31,6 +34,7 @@ class Band:
         self.id = CURSOR.lastrowid
         type(self).all[self.id] = self
         
+    @classmethod
     def create(cls, name, genre):
         """Create a new band"""
         band = cls(name, genre)
@@ -51,6 +55,7 @@ class Band:
         del type(self).all[self.id]
         self.id = None
         
+    @classmethod
     def find_by_id(cls, id):
         """Find a band by id"""
         sql = """SELECT * FROM bands WHERE id = ?"""
@@ -58,6 +63,7 @@ class Band:
         row = CURSOR.fetchone()
         return cls.instance_from_db(row) if row else None
     
+    @classmethod
     def instance_from_db(cls, row):
         """Return a band instance from a database row"""
         band = cls.all.get(row[0])
@@ -69,8 +75,21 @@ class Band:
             band.id = row[0]
             cls.all[band.id] = band
         
+    @classmethod
     def get_all(cls):
         sql = """SELECT * FROM bands"""
         
         rows = CURSOR.execute(sql).fetchall()
         return [cls.instance_from_db(row) for row in rows]
+    
+    def albums(self):
+        from album import Album
+        sql = """SELECT * FROM albums WHERE band_id = ?"""
+        rows = CURSOR.execute(sql, (self.id,)).fetchall()
+        return [Album.instance_from_db(row) for row in rows]
+    
+    def songs(self):
+        from song import Song
+        sql = """SELECT * FROM songs WHERE band_id = ?"""
+        rows = CURSOR.execute(sql, (self.id,)).fetchall()
+        return [Song.instance_from_db(row) for row in rows]
