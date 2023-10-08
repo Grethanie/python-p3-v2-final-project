@@ -1,6 +1,4 @@
 from __init__ import CURSOR, CONN
-from album import Album
-from song import Song
 class Band:
     all = {}
     
