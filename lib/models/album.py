@@ -6,6 +6,7 @@ class Album:
     def __init__(self, title, band_id, id=None):
         self.title, self.band_id, self.id = title, band_id, id
         
+    @classmethod
     def create_table(cls):
         """Create the table for the album model"""
         sql = """CREATE TABLE IF NOT EXISTS albums (
@@ -17,6 +18,7 @@ class Album:
         CURSOR.execute(sql)
         CONN.commit()
         
+    @classmethod
     def drop_table(cls):
         """Drop the table for the album model"""
         sql = """DROP TABLE IF EXISTS albums"""
@@ -30,7 +32,8 @@ class Album:
         CONN.commit()
         self.id = CURSOR.lastrowid
         type(self).all[self.id] = self
-        
+     
+    @classmethod   
     def create(cls, title, band_id):
         """Create a new album"""
         album = cls(title, band_id)
@@ -51,6 +54,7 @@ class Album:
         del type(self).all[self.id]
         self.id = None
         
+    @classmethod
     def find_by_id(cls, id):
         """Find a album by id"""
         sql = """SELECT * FROM albums WHERE id = ?"""
@@ -58,6 +62,7 @@ class Album:
         row = CURSOR.fetchone()
         return cls.instance_from_db(row) if row else None
     
+    @classmethod
     def instance_from_db(cls, row):
         """Return a album instance from a database row"""
         album = cls.all.get(row[0])
@@ -69,6 +74,7 @@ class Album:
             album.id = row[0]
             cls.all[album.id] = album
         
+    @classmethod
     def get_all(cls):
         sql = """SELECT * FROM albums"""
         
