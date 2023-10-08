@@ -1,23 +1,79 @@
+from __init__ import CURSOR, CONN
+from band import Band
 class Song:
+    all = {}
     
-    all = []
-    
-    def __init__(self, title, album, band):
-        self.title, self.album, self.band = title, album, band
-        Song.all.append(self)
-        self.band.songs.append(self)
+    def __init__(self, title, band_id, album_id, id=None):
+        self.title, self.band_id, self.album_id, self.id = title, band_id, album_id, id
         
-    def get_title(self): return self._title
-    def get_album(self): return self._album
-    def get_band(self): return self._band
+    def create_table(cls):
+        """Create the table for the song model"""
+        sql = """CREATE TABLE IF NOT EXISTS songs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT,
+                band_id INTEGER,
+                album_id INTEGER,
+                FOREIGN KEY(band_id) REFERENCES bands(id)
+                FOREIGN KEY(album_id) REFERENCES albums(id)
+            )"""
+        CURSOR.execute(sql)
+        CONN.commit()
+        
+    def drop_table(cls):
+        """Drop the table for the song model"""
+        sql = """DROP TABLE IF EXISTS songs"""
+        CURSOR.execute(sql)
+        CONN.commit()
+        
+    def save(self):
+        """Save the song to the database"""
+        sql = """INSERT INTO songs (title, band_id, album_id) VALUES (?, ?)"""
+        CURSOR.execute(sql, (self.title, self.band_id, self.album_id))
+        CONN.commit()
+        self.id = CURSOR.lastrowid
+        type(self).all[self.id] = self
+        
+    def create(cls, title, band_id, album_id):
+        """Create a new song"""
+        song = cls(title, band_id, album_id)
+        song.save()
+        return song
     
-    def set_title(self, title):
-        self._title = title
-    def set_album(self, album):
-        self._album = album
-    def set_band(self, band):
-        self._band = band
+    def update(self):
+        """Update the song in the database"""
+        sql = """UPDATE songs SET title = ?, band_id = ?, album_id = ? WHERE id = ?"""
+        CURSOR.execute(sql, (self.title, self.band_id, self.album_id, self.id))
+        CONN.commit()
+        
+    def delete(self):
+        """Delete the song from the database"""
+        sql = """DELETE FROM songs WHERE id = ?"""
+        CURSOR.execute(sql, (self.id,))
+        CONN.commit()
+        del type(self).all[self.id]
+        self.id = None
+        
+    def find_by_id(cls, id):
+        """Find a song by id"""
+        sql = """SELECT * FROM songs WHERE id = ?"""
+        CURSOR.execute(sql, (id,))
+        row = CURSOR.fetchone()
+        return cls.instance_from_db(row) if row else None
     
-    title = property(get_title, set_title)
-    album = property(get_album, set_album)
-    band = property(get_band, set_band)
+    def instance_from_db(cls, row):
+        """Return a song instance from a database row"""
+        song = cls.all.get(row[0])
+        if song:
+            song.title = row[1]
+            song.band_id = row[2]
+            song.album_id = row[3]
+        else:
+            song = cls(row[1], row[2], row[3])
+            song.id = row[0]
+            cls.all[song.id] = song
+        
+    def get_all(cls):
+        sql = """SELECT * FROM songs"""
+        
+        rows = CURSOR.execute(sql).fetchall()
+        return [cls.instance_from_db(row) for row in rows]
