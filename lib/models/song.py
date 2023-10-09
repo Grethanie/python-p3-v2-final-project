@@ -18,6 +18,18 @@ class Song:
             raise ValueError("Title cannot be empty")
         self._title = title
         
+    @property
+    def band_id(self):
+        return self._band_id
+    @band_id.setter
+    def band_id(self, band_id):
+        if type(band_id) is not int:
+            raise TypeError("Band ID must be an integer")
+        if band_id < 1:
+            raise TypeError("Band ID must be positive")
+        if not Band.find_by_id(band_id):
+            raise ValueError("Band not found")
+        
         
     @classmethod
     def create_table(cls):
