@@ -1,5 +1,6 @@
 from __init__ import CURSOR, CONN
 from band import Band
+from album import Album
 class Song:
     all = {}
     
@@ -25,11 +26,20 @@ class Song:
     def band_id(self, band_id):
         if type(band_id) is not int:
             raise TypeError("Band ID must be an integer")
-        if band_id < 1:
-            raise TypeError("Band ID must be positive")
         if not Band.find_by_id(band_id):
             raise ValueError("Band not found")
+        self._band_id = band_id
         
+    @property
+    def album_id(self):
+        return self._album_id
+    @album_id.setter
+    def album_id(self, album_id):
+        if type(album_id) is not int:
+            raise TypeError("Album ID must be an integer")
+        if not Album.find_by_id(album_id):
+            raise ValueError("Album not found")
+        self._album_id = album_id
         
     @classmethod
     def create_table(cls):
