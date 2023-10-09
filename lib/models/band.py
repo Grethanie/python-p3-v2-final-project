@@ -5,6 +5,17 @@ class Band:
     def __init__(self, name, genre, id=None):
         self.name, self.genre, self.id = name, genre, id
         
+    @property
+    def name(self):
+        return self._name
+    @name.setter
+    def name(self, name):
+        if not isinstance(name, str):
+            raise TypeError("name must be a string")
+        if name.strip() == "":
+            raise ValueError("name cannot be empty")
+        self._name = name
+        
     @classmethod
     def create_table(cls):
         """Create the table for the Band model"""
