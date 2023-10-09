@@ -10,6 +10,11 @@ class Song:
         self.title = title
         self.id = id
         
+    def __repr__(self):
+        return f"<Song: {self.title} Album: {self.album_id} Band: {self.band_id}>"
+    
+    
+        
         
     @property
     def title(self):
@@ -128,6 +133,14 @@ class Song:
             song.id = row[0]
             cls.all[song.id] = song
         return song
+    
+    def album(self):
+        """Return the album for this song"""
+        return Album.find_by_id(self.album_id)
+    
+    def band(self):
+        """Return the band for this song"""
+        return Band.find_by_id(self.band_id)
     
     @classmethod
     def get_all(cls):

@@ -122,3 +122,6 @@ class Album:
         sql = """SELECT * FROM songs WHERE album_id = ?"""
         rows = CURSOR.execute(sql, (self.id,)).fetchall()
         return [Song.instance_from_db(row) for row in rows]
+    
+    def band(self):
+        return Band.find_by_id(self.band_id)
