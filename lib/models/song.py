@@ -5,7 +5,10 @@ class Song:
     all = {}
     
     def __init__(self, title, band_id, album_id, id=None):
-        self.title, self.band_id, self.album_id, self.id = title, band_id, album_id, id
+        self.band_id = band_id
+        self.album_id = album_id
+        self.title = title
+        self.id = id
         
         
     @property
@@ -17,6 +20,8 @@ class Song:
             raise TypeError("Title must be a string")
         if title.strip() == "":
             raise ValueError("Title cannot be empty")
+        if type(self).find_by_title_and_band_and_album(title, self.band_id, self.album_id):
+            raise ValueError("Song by this band with this title already in database")
         self._title = title
         
     @property
@@ -37,8 +42,11 @@ class Song:
     def album_id(self, album_id):
         if type(album_id) is not int:
             raise TypeError("Album ID must be an integer")
-        if not Album.find_by_id(album_id):
+        existing_album = Album.find_by_id(album_id)
+        if not existing_album:
             raise ValueError("Album not found")
+        if existing_album.band_id != self.band_id:
+            raise ValueError("Album and Band mismatch")
         self._album_id = album_id
         
     @classmethod
@@ -96,6 +104,14 @@ class Song:
         """Find a song by id"""
         sql = """SELECT * FROM songs WHERE id = ?"""
         CURSOR.execute(sql, (id,))
+        row = CURSOR.fetchone()
+        return cls.instance_from_db(row) if row else None
+    
+    @classmethod
+    def find_by_title_and_band_and_album(cls, title, band_id, album_id):
+        """Find a song by title"""
+        sql = """SELECT * FROM songs WHERE title = ? AND band_id = ? AND album_id = ?"""
+        CURSOR.execute(sql, (title.lower(), band_id, album_id))
         row = CURSOR.fetchone()
         return cls.instance_from_db(row) if row else None
     

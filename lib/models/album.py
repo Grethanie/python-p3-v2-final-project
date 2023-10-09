@@ -4,7 +4,9 @@ class Album:
     all = {}
     
     def __init__(self, title, band_id, id=None):
-        self.title, self.band_id, self.id = title, band_id, id
+        self.band_id = band_id
+        self.title = title
+        self.id = id
         
         
     @property
@@ -16,6 +18,8 @@ class Album:
             raise TypeError("Title must be a string")
         if title.strip() == "":
             raise ValueError("Title cannot be empty")
+        if type(self).find_by_title_and_band(title, self.band_id):
+            raise ValueError("album with title and band is already in database")
         self._title = title
         
     @property
@@ -82,6 +86,14 @@ class Album:
         """Find a album by id"""
         sql = """SELECT * FROM albums WHERE id = ?"""
         CURSOR.execute(sql, (id,))
+        row = CURSOR.fetchone()
+        return cls.instance_from_db(row) if row else None
+    
+    @classmethod
+    def find_by_title_and_band(cls, title, band_id):
+        """Find a album by title"""
+        sql = """SELECT * FROM albums WHERE title = ? AND band_id = ?"""
+        CURSOR.execute(sql, (title.lower(), band_id))
         row = CURSOR.fetchone()
         return cls.instance_from_db(row) if row else None
     
