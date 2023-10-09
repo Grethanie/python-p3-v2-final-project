@@ -14,7 +14,19 @@ class Band:
             raise TypeError("name must be a string")
         if name.strip() == "":
             raise ValueError("name cannot be empty")
+        
         self._name = name
+        
+    @property
+    def genre(self):
+        return self._genre
+    @genre.setter
+    def genre(self, genre):
+        if not isinstance(genre, str):
+            raise TypeError("genre must be a string")
+        if genre.strip() == "":
+            raise ValueError("genre cannot be empty")
+        self._genre = genre
         
     @classmethod
     def create_table(cls):
@@ -73,6 +85,14 @@ class Band:
         return cls.instance_from_db(row) if row else None
     
     @classmethod
+    def find_by_name(cls, name):
+        """Find a band by name"""
+        sql = """SELECT * FROM bands WHERE name = ?"""
+        CURSOR.execute(sql, (name,))
+        row = CURSOR.fetchone()
+        return cls.instance_from_db(row) if row else None
+    
+    @classmethod
     def instance_from_db(cls, row):
         """Return a band instance from a database row"""
         band = cls.all.get(row[0])
@@ -83,6 +103,7 @@ class Band:
             band = cls(row[1], row[2])
             band.id = row[0]
             cls.all[band.id] = band
+        return band
         
     @classmethod
     def get_all(cls):

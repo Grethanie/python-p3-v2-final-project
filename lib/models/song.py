@@ -111,7 +111,8 @@ class Song:
             song = cls(row[1], row[2], row[3])
             song.id = row[0]
             cls.all[song.id] = song
-        
+        return song
+    
     @classmethod
     def get_all(cls):
         sql = """SELECT * FROM songs"""

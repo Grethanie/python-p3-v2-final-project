@@ -96,6 +96,7 @@ class Album:
             album = cls(row[1], row[2])
             album.id = row[0]
             cls.all[album.id] = album
+        return album
         
     @classmethod
     def get_all(cls):
