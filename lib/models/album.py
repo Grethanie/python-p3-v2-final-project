@@ -6,6 +6,18 @@ class Album:
     def __init__(self, title, band_id, id=None):
         self.title, self.band_id, self.id = title, band_id, id
         
+        
+    @property
+    def title(self):
+        return self._title
+    @property.setter
+    def title(self, title):
+        if not isinstance(title, str):
+            raise TypeError("Title must be a string")
+        if title.strip() == "":
+            raise ValueError("Title cannot be empty")
+        self._title = title
+        
     @classmethod
     def create_table(cls):
         """Create the table for the album model"""
